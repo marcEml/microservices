@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="fragments/head :: head('Preview')"><title>Dataset Generator</title></head>
+<body>
+
+<div th:replace="fragments/navbar :: nav"></div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        JSON Preview
+    </div>
+    <div class="card-body">
+        <pre class="bg-light p-3 rounded">
+<code class="language-json" th:text="${jsonPreview}"></code>
+        </pre>
+
+        <a class="btn btn-success me-2"
+           th:href="@{/api/export(
+               projectId=${project.project_id},
+               format='json',
+               count=10
+           )}">
+            Download JSON
+        </a>
+
+        <a class="btn btn-outline-secondary" href="/projects">
+            Back
+        </a>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+</body>
+</html>

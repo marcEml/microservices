@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: false
+
+      routes:
+        # =========================
+        # Dataset Manager
+        # =========================
+        - id: dataset-manager
+          uri: lb://DATASET-MANAGER-SERVICE
+          predicates:
+            - Path=/DATASET-MANAGER/api/**
+          filters:
+            - StripPrefix=1
+
+        # =========================
+        # Generator Service
+        # =========================
+        - id: generator-service
+          uri: lb://GENERATOR-SERVICE
+          predicates:
+            - Path=/GENERATOR-SERVICE/api/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

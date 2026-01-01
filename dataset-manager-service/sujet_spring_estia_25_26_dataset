@@ -1,0 +1,251 @@
+#  Générateur de Datasets — Plan de développement
+
+Bienvenue dans le projet **Générateur de Datasets**   
+Ce document `TODO.md` sert de **guide de progression** pour construire progressivement votre application **Spring Boot** (backend) et son **interface web** (Thymeleaf, React ou Angular).
+
+
+##  Objectif général
+
+Créer une application permettant de :
+
+-   Définir des **projets de datasets** (ex : population, e-commerce…)
+    
+-   Définir des **entités** et leurs **attributs**
+    
+-   Générer automatiquement des données fictives
+    
+-   Exporter les résultats dans plusieurs formats (CSV, JSON…)
+    
+
+
+##  Étape 0 — Initialisation du projet
+
+** Objectif :** Créer la structure de base du projet et vérifier que tout fonctionne.
+
+### Tâches à réaliser
+
+-   Créer un projet **Spring Boot** (via [https://start.spring.io](https://start.spring.io/)) avec :
+    
+    -   Spring Web
+        
+    -   Spring Data JPA
+        
+    -   Lombok
+        
+    -   H2 Database
+        
+    -   (Optionnel) MapStruct
+        
+-   Configurer `application.yml` avec la base H2
+    
+-   Créer la structure suivante :
+    
+    ```
+    src/main/java/com/example/datagenerator
+        ├── controller
+        ├── service
+        ├── repository
+        ├── model
+        ├── dto
+        └── mapper
+    
+    ```
+    
+-   Ajouter un `README.md` expliquant :
+    
+    -   le but du projet
+        
+    -   comment le lancer (`mvn spring-boot:run` ou `docker compose up`)
+        
+
+ **Étape validée quand :**
+
+-   Le projet démarre sans erreur.
+    
+-   La console H2 est accessible.
+    
+
+## Étape 1 — Modélisation de base (Projet / Entités / Attributs)
+
+** Objectif :** Mettre en place les classes principales pour représenter les projets de datasets.
+
+### À faire
+
+-   Créer les entités :
+    
+    -   `Project` (id, name, description)
+        
+    -   `EntityDefinition` (id, name, lié à un projet)
+        
+    -   `AttributeDefinition` (id, name, type)
+        
+-   Le type d’attribut peut être une simple **Integer** pour commencer.
+    
+-   Créer les **repositories** JPA correspondants
+    
+-   Créer les **services*w* pour gérer le CRUD
+    
+-   Créer les **DTO** et **mappers** (manuels ou avec MapStruct)
+    
+-   Créer les **contrôleurs REST** :
+    
+    -   `/api/projects`
+        
+    -   `/api/entities`
+        
+    -   `/api/attributes`
+        
+-   Créer un **front minimal** :
+    
+    -   Liste des projets
+        
+    -   Formulaire pour créer un projet et y ajouter des entités
+        
+
+ **Étape validée quand :**
+
+-   Vous pouvez créer un projet, lui ajouter des entités et attributs, et les afficher.
+    
+
+
+##  Étape 2 — Gestion des sous-entités
+
+** Objectif :** Permettre qu’une entité contienne d’autres entités (composition).
+
+### À faire
+
+-   Ajouter une relation parent/enfant :
+    
+    ```java
+    @ManyToOne
+    private EntityDefinition parentEntity;
+    
+    @OneToMany(mappedBy = "parentEntity")
+    private List<EntityDefinition> subEntities;
+    
+    ```
+    
+-   Mettre à jour les DTO et mappers
+    
+-   Ajouter des endpoints REST pour gérer les sous-entités :
+    
+    -   `/api/entities/{id}/subentities`
+        
+-   Adapter le front pour afficher et gérer les sous-entités
+    
+
+ **Étape validée quand :**
+
+-   Vous pouvez créer une entité avec des sous-entités (ex : `Utilisateur` → `Adresse`).
+    
+
+
+##  Étape 3 — Système d’export
+
+** Objectif :** Générer et exporter les données définies dans les projets.
+
+### À faire
+
+-   Créer un service `DatasetGeneratorService` avec une méthode :
+    
+    ```java
+    Dataset generate(Project project, int count);
+    
+    ```
+    
+-   Génération simple : remplir les valeurs avec des données aléatoires
+    
+-   Créer une interface `Exporter` :
+    
+    ```java
+    public interface Exporter {
+        byte[] export(Dataset dataset);
+    }
+    
+    ```
+    
+-   Implémenter  `JsonExporter`, nous verrons plus tard pour quelque chose de générique
+            
+-   Ajouter un endpoint :
+    
+    ```
+    GET /api/export?projectId=1&format=json
+    
+    ```
+    
+-   Ajouter un bouton “Exporter” dans le front
+    
+
+ **Étape validée quand :**
+
+-   Vous pouvez générer et télécharger un JSON simple.
+    
+
+
+##  Étape 4 — Généralisation des attributs
+
+** Objectif :** Rendre le système extensible et plus réaliste.
+
+### À faire
+
+-   Créer une énumération `AttributeType { STRING, INTEGER, FLOAT, BOOLEAN, DATE }` afin de rendre possible l'ajout de n'importe quel type d'attribut.
+
+-   Adapter le `DatasetGeneratorService` pour utiliser ces générateurs
+    
+-   Ajouter un champ `constraints` (min, max…) si vous souhaitez aller plus loin
+    
+
+ **Étape validée quand :**
+
+-   Les valeurs générées sont cohérentes selon le type d’attribut.
+    
+
+##  Étape 5 — Finalisation
+
+** Objectif :** Nettoyer, documenter et rendre le projet présentable.
+
+### À faire
+    
+-   Documenter les endpoints avec **Swagger / OpenAPI**
+    
+-   Ajouter la pagination sur les listes si nécessaire
+    
+-   Corriger les messages d’erreur et exceptions
+    
+-   Mettre à jour le `README.md` :
+    
+    -   Instructions de build et exécution
+        
+    -   Exemple de jeu de données
+        
+    -   Captures d’écran du front
+        
+
+ **Étape validée quand :**
+
+-   Le projet est complet, documenté et facilement testable.
+    
+
+##  Étapes bonus (optionnelles)
+
+-   Ajouter un modèle prédéfini (population française, ventes e-commerce…)
+        
+-   Ajouter un connecteur externe (API de prénoms, villes…)
+        
+-   Dockeriser le projet
+    
+
+##  Conseils finaux
+
+-   Progressez **étape par étape**, cochez vos tâches au fur et à mesure ✅
+    
+-   Testez souvent avec **Postman**, **cURL** ou **Swagger** avant de connecter le front
+    
+-   Commencez simple (Thymeleaf ou REST pur), puis améliorez
+    
+-   Gardez votre code **clair et commenté** (quand nécessaire pour vous :))
+    
+
+----------
+
+**Bon code et amusez-vous ! **

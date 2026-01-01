@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="fragments/head :: head('Entities')"><title>Dataset Generator</title></head>
+<body>
+
+<div th:replace="fragments/navbar :: nav"></div>
+
+<div class="container">
+
+    <h2 class="mb-3">Entities</h2>
+
+    <!-- Formulaire -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/entities/saveEntity}" th:object="${entity}" method="post">
+                <input type="hidden" th:field="*{entity_id}"/>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Entity name</label>
+                        <label>
+                            <input class="form-control" th:field="*{name}" required/>
+                        </label>
+                    </div>
+
+                    <div class="col">
+                        <label class="form-label">Project</label>
+                        <label>
+                            <select class="form-select" th:field="*{project.project_id}" required>
+                                <option th:each="p : ${projects}"
+                                        th:value="${p.project_id}"
+                                        th:text="${p.name}">
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="col">
+                        <label class="form-label">Parent entity</label>
+                        <label>
+                            <select class="form-select" th:field="*{parentEntity.entity_id}">
+                                <option value="">— None —</option>
+                                <option th:each="e : ${allEntities}"
+                                        th:value="${e.entity_id}"
+                                        th:text="${e.name}">
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary">Save Entity</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Project</th>
+            <th>Parent</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="e : ${entities}">
+            <td th:text="${e.entity_id}"></td>
+            <td th:text="${e.name}"></td>
+            <td th:text="${e.project.name}"></td>
+            <td th:text="${e.parentEntity != null ? e.parentEntity.name : '—'}"></td>
+            <td>
+                <a class="btn btn-sm btn-secondary"
+                   th:href="@{'/entities/edit/' + ${e.entity_id}}">
+                    Edit
+                </a>
+
+                <a class="btn btn-sm btn-danger"
+                   th:href="@{'/entities/delete/' + ${e.entity_id}}"
+                   onclick="return confirm('Delete entity?');">
+                    Delete
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

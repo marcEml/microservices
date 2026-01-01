@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/head :: head('Projects')}"><title>Dataset Generator</title></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<div class="container">
+
+    <h2 class="mb-3">Projects</h2>
+
+    <!-- Formulaire -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/projects/saveProject}" th:object="${project}" method="post">
+                <input type="hidden" th:field="*{project_id}"/>
+
+                <div class="row">
+                    <div class="col">
+                        <label>
+                            <input class="form-control" placeholder="Project name"
+                                   th:field="*{name}" required/>
+                        </label>
+                    </div>
+                    <div class="col">
+                        <label>
+                            <input class="form-control" placeholder="Description"
+                                   th:field="*{description}" required/>
+                        </label>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+            <th>Preset</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${projects}">
+            <td th:text="${p.project_id}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.description}"></td>
+
+            <td>
+                <a class="btn btn-sm btn-secondary"
+                   th:href="@{'/projects/edit/' + ${p.project_id}}">Edit</a>
+
+                <a class="btn btn-sm btn-danger"
+                   th:href="@{'/projects/delete/' + ${p.project_id}}"
+                   onclick="return confirm('Delete project?');">Delete</a>
+
+                <a class="btn btn-sm btn-success"
+                   th:href="@{'/api/export?projectId=' + ${p.project_id} + '&format=csv&count=10'}">
+                    CSV
+                </a>
+
+                <a class="btn btn-sm btn-info"
+                   th:href="@{'/projects/preview/' + ${p.project_id}}">
+                    Preview
+                </a>
+            </td>
+
+            <td>
+                <form th:action="@{/projects/presets/apply}" method="post" class="d-flex">
+                    <input type="hidden" name="projectId" th:value="${p.project_id}"/>
+                    <select name="presetName" class="form-select form-select-sm me-2">
+                        <option th:each="preset : ${availablePresets}"
+                                th:value="${preset}"
+                                th:text="${preset}">
+                        </option>
+                    </select>
+                    <button class="btn btn-sm btn-warning">Apply</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
